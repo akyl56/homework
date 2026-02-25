@@ -33,6 +33,11 @@ REQUEST_TIMEOUT = 10
 RETRY_COUNT = 2
 
 # 目标 ETF 与可用数据源候选（按顺序依次尝试）
+BEIJING_TZ = ZoneInfo("Asia/Shanghai")
+USER_AGENT = "Mozilla/5.0 (ETF-Reminder/1.0; +https://github.com/aky56/homework)"
+REQUEST_TIMEOUT = 10
+RETRY_COUNT = 2
+
 ETF_SYMBOL_CANDIDATES: Dict[str, List[Tuple[str, str]]] = {
     "CSPX.GB": [
         ("yahoo", "CSPX.L"),
@@ -343,6 +348,7 @@ def schedule_loop(remind_hhmm: str, cfg: SmtpConfig, email_to: str) -> int:
 
     log(f"进入定时模式，提醒时间(北京): {remind_hhmm}，仅周一至周五触发")
     # 记录上次触发日期，防止同一天重复触发
+    log(f"进入定时模式，提醒时间(北京): {remind_hhmm}，仅周一至周五触发")
     last_trigger_date: Optional[str] = None
 
     while True:
