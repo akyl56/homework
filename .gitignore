@@ -1,0 +1,9 @@
+# Sensitive config
+config.ini
+.env
+.env.*
+*.secrets
+
+# Python
+__pycache__/
+*.pyc
