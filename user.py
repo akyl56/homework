@@ -323,6 +323,17 @@ def is_weekday_beijing() -> bool:
     return datetime.now(BEIJING_TZ).weekday() < 5
 
 
+def print_email_preview(subject: str, body: str) -> None:
+    """在控制台打印即将发送的邮件内容。"""
+
+    log("即将发送的邮件内容如下：")
+    print("-" * 60)
+    print(f"Subject: {subject}")
+    print(body)
+    print("-" * 60)
+
+
+def run_once(cfg: Optional[SmtpConfig], email_to: Optional[str]) -> int:
 def run_once(cfg: SmtpConfig, email_to: str) -> int:
     """执行一次抓取+发信。
 
@@ -330,11 +341,23 @@ def run_once(cfg: SmtpConfig, email_to: str) -> int:
     """
 
     subject, body = build_report()
+    # 按需求：发邮件前，先把邮件内容打印给用户
+    print_email_preview(subject, body)
+
+    # 按需求：若未提供 --config 或 --emailto，则跳过发信流程
+    if cfg is None or not email_to:
+        log("未提供 --config 与 --emailto 的完整参数，跳过发邮件环节")
+        return 0
+
     try:
         send_email(cfg, email_to, subject, body)
         return 0
     except Exception as exc:
         log(f"邮件发送失败: {exc}")
+        return 1
+
+
+def schedule_loop(remind_hhmm: str, cfg: Optional[SmtpConfig], email_to: Optional[str]) -> int:
         log("以下为本次邮件内容预览：")
         print("-" * 60)
         print(f"Subject: {subject}")
@@ -374,6 +397,8 @@ def parse_args() -> argparse.Namespace:
 
     parser = argparse.ArgumentParser(description="ETF 邮件提醒脚本")
     parser.add_argument("--remind", default="09:30", help="北京时间提醒时间，格式 HH:MM")
+    parser.add_argument("--emailto", help="收件人邮箱；不传则跳过发邮件")
+    parser.add_argument("--config", help="SMTP 配置文件路径；不传则跳过发邮件")
     parser.add_argument("--emailto", required=True, help="收件人邮箱")
     parser.add_argument("--config", default="config.ini", help="SMTP 配置文件路径")
     parser.add_argument("--once", action="store_true", help="立即执行一次并退出")
@@ -395,6 +420,16 @@ def main() -> int:
     args = parse_args()
     validate_hhmm(args.remind)
 
+    cfg: Optional[SmtpConfig] = None
+    if args.config and args.emailto:
+        try:
+            cfg = read_config(args.config)
+        except Exception as exc:
+            # 配置错误是不可恢复问题：直接退出并返回非 0
+            log(f"配置错误: {exc}")
+            return 2
+    else:
+        log("未传入完整的 --config 和 --emailto，程序将仅打印报告并跳过发邮件")
     try:
         cfg = read_config(args.config)
     except Exception as exc:
