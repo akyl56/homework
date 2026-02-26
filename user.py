@@ -394,6 +394,12 @@ def schedule_loop(remind_hhmm: str, cfg: SmtpConfig, email_to: str) -> int:
 def parse_args() -> argparse.Namespace:
     """解析命令行参数。"""
 
+    # 使用 conflict_handler='resolve'，即使文件被误合并导致重复定义同名参数，
+    # 也不会在 --help 阶段直接崩溃（后定义会覆盖先定义）。
+    parser = argparse.ArgumentParser(description="ETF 邮件提醒脚本", conflict_handler="resolve")
+    parser.add_argument("--remind", default="09:30", help="北京时间提醒时间，格式 HH:MM")
+    parser.add_argument("--emailto", help="收件人邮箱；不传则跳过发邮件")
+    parser.add_argument("--config", help="SMTP 配置文件路径；不传则跳过发邮件")
     parser = argparse.ArgumentParser(description="ETF 邮件提醒脚本")
     parser.add_argument("--remind", default="09:30", help="北京时间提醒时间，格式 HH:MM")
     parser.add_argument("--emailto", help="收件人邮箱；不传则跳过发邮件")
