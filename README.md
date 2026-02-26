@@ -2,7 +2,7 @@
 
 本项目提供 `user.py`，用于在北京时间工作日定时抓取以下数据并发邮件提醒：
 
-- ETF：`CSPX.GB`（LSE）与 `CSNDX.CH`（SWX）的当日最高/最低/当前价
+- ETF：`CSPX.GB`（LSE）、`CSNDX.CH`（SWX）与 `SMH.GB` 的当日最高/最低/当前价
 - CNN Fear & Greed 指标
 
 > 说明：若网络受限或接口异常，脚本会优雅降级，邮件状态为 `NOK` 并附缺失原因。
