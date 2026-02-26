@@ -334,7 +334,6 @@ def print_email_preview(subject: str, body: str) -> None:
 
 
 def run_once(cfg: Optional[SmtpConfig], email_to: Optional[str]) -> int:
-def run_once(cfg: SmtpConfig, email_to: str) -> int:
     """执行一次抓取+发信。
 
     发信失败时打印邮件内容预览，便于在无 SMTP 环境下排查。
