@@ -352,6 +352,15 @@ def run_once(cfg: Optional[SmtpConfig], email_to: Optional[str]) -> int:
 
 
 def schedule_loop(remind_hhmm: str, cfg: Optional[SmtpConfig], email_to: Optional[str]) -> int:
+        log("以下为本次邮件内容预览：")
+        print("-" * 60)
+        print(f"Subject: {subject}")
+        print(body)
+        print("-" * 60)
+        return 1
+
+
+def schedule_loop(remind_hhmm: str, cfg: SmtpConfig, email_to: str) -> int:
     """定时循环：每天到指定 HH:MM 时触发一次（仅工作日）。"""
 
     log(f"进入定时模式，提醒时间(北京): {remind_hhmm}，仅周一至周五触发")
