@@ -33,6 +33,11 @@ REQUEST_TIMEOUT = 10
 RETRY_COUNT = 2
 
 # 目标 ETF 与可用数据源候选（按顺序依次尝试）
+BEIJING_TZ = ZoneInfo("Asia/Shanghai")
+USER_AGENT = "Mozilla/5.0 (ETF-Reminder/1.0; +https://github.com/aky56/homework)"
+REQUEST_TIMEOUT = 10
+RETRY_COUNT = 2
+
 ETF_SYMBOL_CANDIDATES: Dict[str, List[Tuple[str, str]]] = {
     "CSPX.GB": [
         ("yahoo", "CSPX.L"),
@@ -329,6 +334,7 @@ def print_email_preview(subject: str, body: str) -> None:
 
 
 def run_once(cfg: Optional[SmtpConfig], email_to: Optional[str]) -> int:
+def run_once(cfg: SmtpConfig, email_to: str) -> int:
     """执行一次抓取+发信。
 
     发信失败时打印邮件内容预览，便于在无 SMTP 环境下排查。
@@ -352,10 +358,20 @@ def run_once(cfg: Optional[SmtpConfig], email_to: Optional[str]) -> int:
 
 
 def schedule_loop(remind_hhmm: str, cfg: Optional[SmtpConfig], email_to: Optional[str]) -> int:
+        log("以下为本次邮件内容预览：")
+        print("-" * 60)
+        print(f"Subject: {subject}")
+        print(body)
+        print("-" * 60)
+        return 1
+
+
+def schedule_loop(remind_hhmm: str, cfg: SmtpConfig, email_to: str) -> int:
     """定时循环：每天到指定 HH:MM 时触发一次（仅工作日）。"""
 
     log(f"进入定时模式，提醒时间(北京): {remind_hhmm}，仅周一至周五触发")
     # 记录上次触发日期，防止同一天重复触发
+    log(f"进入定时模式，提醒时间(北京): {remind_hhmm}，仅周一至周五触发")
     last_trigger_date: Optional[str] = None
 
     while True:
@@ -383,6 +399,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--remind", default="09:30", help="北京时间提醒时间，格式 HH:MM")
     parser.add_argument("--emailto", help="收件人邮箱；不传则跳过发邮件")
     parser.add_argument("--config", help="SMTP 配置文件路径；不传则跳过发邮件")
+    parser.add_argument("--emailto", required=True, help="收件人邮箱")
+    parser.add_argument("--config", default="config.ini", help="SMTP 配置文件路径")
     parser.add_argument("--once", action="store_true", help="立即执行一次并退出")
     return parser.parse_args()
 
@@ -412,6 +430,12 @@ def main() -> int:
             return 2
     else:
         log("未传入完整的 --config 和 --emailto，程序将仅打印报告并跳过发邮件")
+    try:
+        cfg = read_config(args.config)
+    except Exception as exc:
+        # 配置错误是不可恢复问题：直接退出并返回非 0
+        log(f"配置错误: {exc}")
+        return 2
 
     if args.once:
         return run_once(cfg, args.emailto)
