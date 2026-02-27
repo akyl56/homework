@@ -724,6 +724,8 @@ def build_report() -> Tuple[str, str]:
     status = "PASS" if not critical_missing else "NOK"
     subject = f"[{status}] ETF 日报提醒"
 
+    line_time_prefix = datetime.now(BEIJING_TZ).strftime("%Y-%m-%d %H:%M")
+
     lines = [
         f"状态: {status}",
         f"时间(北京): {datetime.now(BEIJING_TZ).strftime('%Y-%m-%d %H:%M:%S')}",
@@ -733,33 +735,33 @@ def build_report() -> Tuple[str, str]:
 
     for p in prices:
         if p.current is None:
-            lines.append(f"- {p.symbol}: 数据缺失，原因: {p.error}")
+            lines.append(f"{line_time_prefix} - {p.symbol}: 数据缺失，原因: {p.error}")
         else:
             lines.append(
-                f"- {p.symbol}: 当前 {p.current:.4f}, 当日最高 {p.day_high:.4f}, 当日最低 {p.day_low:.4f} (来源: {p.source})"
+                f"{line_time_prefix} - {p.symbol}: 当前 {p.current:.4f}, 当日最高 {p.day_high:.4f}, 当日最低 {p.day_low:.4f} (来源: {p.source})"
             )
 
     lines.append("")
     lines.append("Fear & Greed:")
     if fg.value is None:
-        lines.append(f"- 数据缺失，原因: {fg.error}")
+        lines.append(f"{line_time_prefix} - 数据缺失，原因: {fg.error}")
     else:
         rating_text = f" ({fg.rating})" if fg.rating else ""
-        lines.append(f"- 指数: {fg.value:.1f}{rating_text}")
+        lines.append(f"{line_time_prefix} - 指数: {fg.value:.1f}{rating_text}")
 
     lines.append("")
     lines.append("CNN Markets 快照:")
     if market.error:
-        lines.append(f"- 数据缺失，原因: {market.error}")
+        lines.append(f"{line_time_prefix} - 数据缺失，原因: {market.error}")
     else:
         if market.sp500_value and market.sp500_change:
-            lines.append(f"- S&P 500: {market.sp500_value} {market.sp500_change}")
+            lines.append(f"{line_time_prefix} - S&P 500: {market.sp500_value} {market.sp500_change}")
         else:
-            lines.append("- S&P 500: 数据缺失")
+            lines.append(f"{line_time_prefix} - S&P 500: 数据缺失")
         if market.nasdaq_value and market.nasdaq_change:
-            lines.append(f"- NASDAQ: {market.nasdaq_value} {market.nasdaq_change}")
+            lines.append(f"{line_time_prefix} - NASDAQ: {market.nasdaq_value} {market.nasdaq_change}")
         else:
-            lines.append("- NASDAQ: 数据缺失")
+            lines.append(f"{line_time_prefix} - NASDAQ: 数据缺失")
 
     body = "\n".join(lines)
     return subject, body
