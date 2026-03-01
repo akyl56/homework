@@ -733,12 +733,15 @@ def build_report() -> Tuple[str, str]:
         "ETF 行情:",
     ]
 
+    lines.append(f"{'类别':<10}{'时间':<18}{'当前':<14}{'当日最高':<14}{'当日最低':<14}")
     for p in prices:
-        if p.current is None:
-            lines.append(f"{line_time_prefix} - {p.symbol}: 数据缺失，原因: {p.error}")
+        if p.current is None or p.day_high is None or p.day_low is None:
+            lines.append(f"{p.symbol:<10}{line_time_prefix:<18}{'数据缺失':<14}{'-':<14}{'-':<14}")
+            if p.error:
+                lines.append(f"  说明: {p.error}")
         else:
             lines.append(
-                f"{line_time_prefix} - {p.symbol}: 当前 {p.current:.4f}, 当日最高 {p.day_high:.4f}, 当日最低 {p.day_low:.4f} (来源: {p.source})"
+                f"{p.symbol:<10}{line_time_prefix:<18}{p.current:<14.4f}{p.day_high:<14.4f}{p.day_low:<14.4f}"
             )
 
     lines.append("")
