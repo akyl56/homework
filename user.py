@@ -2,7 +2,7 @@
 """ETF 邮件提醒脚本。
 
 功能概览：
-1) 抓取 ETF（CSPX.GB / CSNDX.CH / SMH.GB）行情（当前价、当日最高、当日最低）
+1) 抓取 ETF（CSPX.GB / CSNDX.CH / SMH.GB / IWY.US / COWZ.NL）行情（当前价、当日最高、当日最低）
 2) 抓取 CNN Fear & Greed 指标
 3) 根据抓取结果生成 PASS / NOK 邮件并通过 SMTP 发送
 4) 支持 --once 单次执行和按北京时间工作日定时执行
@@ -63,6 +63,14 @@ ETF_SYMBOL_CANDIDATES: Dict[str, List[Tuple[str, str]]] = {
         ("yahoo", "SMH.L"),
         ("yahoo", "SMH"),
         ("stooq", "smh.gb"),
+    ],
+    "IWY.US": [
+        ("yahoo", "IWY"),
+        ("stooq", "iwy.us"),
+    ],
+    "COWZ.NL": [
+        ("yahoo", "COWZ.AS"),
+        ("stooq", "cowz.nl"),
     ],
 }
 
